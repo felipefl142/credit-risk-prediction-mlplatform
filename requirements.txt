@@ -1,0 +1,30 @@
+# Core
+pandas>=2.1
+numpy>=1.26
+pyarrow>=14.0
+matplotlib>=3.8
+seaborn>=0.13
+plotly>=5.18
+jupyterlab>=4.0
+ipykernel>=6.27
+
+# ML
+scikit-learn>=1.4
+lightgbm>=4.2
+xgboost>=2.0
+catboost>=1.2
+shap>=0.44
+optuna>=3.5
+
+# MLOps
+mlflow>=2.10
+feast>=0.36
+
+# Serving & Dashboard
+fastapi>=0.109
+uvicorn>=0.27
+streamlit>=1.30
+pydantic>=2.5
+
+# Utils
+kaggle>=1.6
