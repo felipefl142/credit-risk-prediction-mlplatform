@@ -51,8 +51,8 @@ kaggle competitions download -c home-credit-default-risk -p data/raw
 
 - **01**: Data ingestion & data lake setup (CSV → Parquet)
 - **02**: Exploratory data analysis (EDA)
-- **03**: Feature engineering (aggregations, domain features)
-- **04**: Feature store setup with Feast
+- **03**: Feature engineering (aggregations, domain features, 6 curated `_IS_MISSING` indicators)
+- **04**: Feature store setup with Feast (4 feature views: applicant, bureau, credit history, missing indicators)
 - **05**: Baseline models (LogReg, RF) + first MLFlow experiment
 - **06**: Model selection & comparison (LightGBM, XGBoost, CatBoost) + SHAP
 - **07**: Hyperparameter tuning (Optuna + MLFlow)
@@ -73,3 +73,5 @@ kaggle competitions download -c home-credit-default-risk -p data/raw
 - **No leakage**: features derived only from data available at application time
 - **Data formats**: raw as CSV, processed/features as Parquet
 - **MLFlow tracking**: local file store at `mlruns/`, SQLite backend for model registry
+- **Missing indicators**: only 6 curated `_IS_MISSING` features kept (EXT_SOURCE_1, EXT_SOURCE_3, OWN_CAR_AGE, OCCUPATION_TYPE, BUREAU_CREDIT_COUNT, PREV_APPLICATION_COUNT) — all with >5% missingness
+- **Current progress**: NB01-NB04 complete, NB05+ planned

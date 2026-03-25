@@ -8,7 +8,7 @@ engineered features from the gold layer.
 from datetime import timedelta
 
 from feast import Entity, FeatureView, FileSource, Field
-from feast.types import Float32, Int64
+from feast.types import Float32, Int32, Int64
 
 # ---------------------------------------------------------------------------
 # Entity
@@ -51,10 +51,6 @@ applicant_features = FeatureView(
         Field(name="EXT_SOURCE_1", dtype=Float32),
         Field(name="EXT_SOURCE_2", dtype=Float32),
         Field(name="EXT_SOURCE_3", dtype=Float32),
-        Field(name="CREDIT_INCOME_RATIO", dtype=Float32),
-        Field(name="ANNUITY_INCOME_RATIO", dtype=Float32),
-        Field(name="CREDIT_ANNUITY_RATIO", dtype=Float32),
-        Field(name="INCOME_PER_FAMILY_MEMBER", dtype=Float32),
     ],
     source=train_source,
     online=True,
@@ -66,18 +62,17 @@ bureau_features = FeatureView(
     entities=[applicant],
     ttl=timedelta(days=3650),
     schema=[
-        Field(name="BUREAU_LOAN_COUNT", dtype=Float32),
-        Field(name="BUREAU_LOAN_TYPES", dtype=Float32),
+        Field(name="BUREAU_CREDIT_COUNT", dtype=Float32),
         Field(name="BUREAU_AMT_CREDIT_SUM_SUM", dtype=Float32),
         Field(name="BUREAU_AMT_CREDIT_SUM_MEAN", dtype=Float32),
         Field(name="BUREAU_AMT_CREDIT_SUM_DEBT_SUM", dtype=Float32),
         Field(name="BUREAU_AMT_CREDIT_SUM_DEBT_MEAN", dtype=Float32),
-        Field(name="BUREAU_AMT_CREDIT_SUM_OVERDUE_SUM", dtype=Float32),
+        Field(name="BUREAU_AMT_CREDIT_SUM_OVERDUE_MEAN", dtype=Float32),
         Field(name="BUREAU_DAYS_CREDIT_MEAN", dtype=Float32),
         Field(name="BUREAU_DAYS_CREDIT_MIN", dtype=Float32),
         Field(name="BUREAU_DAYS_CREDIT_MAX", dtype=Float32),
         Field(name="BUREAU_DAYS_CREDIT_ENDDATE_MEAN", dtype=Float32),
-        Field(name="BUREAU_ACTIVE_LOANS_PCT", dtype=Float32),
+        Field(name="BUREAU_OVERDUE_CREDIT_PROPORTION", dtype=Float32),
     ],
     source=train_source,
     online=True,
@@ -89,26 +84,41 @@ credit_history_features = FeatureView(
     entities=[applicant],
     ttl=timedelta(days=3650),
     schema=[
-        Field(name="PREV_APP_COUNT", dtype=Float32),
+        Field(name="PREV_APPLICATION_COUNT", dtype=Float32),
         Field(name="PREV_AMT_APPLICATION_MEAN", dtype=Float32),
-        Field(name="PREV_AMT_APPLICATION_SUM", dtype=Float32),
         Field(name="PREV_AMT_CREDIT_MEAN", dtype=Float32),
-        Field(name="PREV_APPROVED_COUNT", dtype=Float32),
-        Field(name="PREV_REFUSED_COUNT", dtype=Float32),
+        Field(name="PREV_STATUS_APPROVED_COUNT", dtype=Float32),
+        Field(name="PREV_STATUS_REFUSED_COUNT", dtype=Float32),
+        Field(name="PREV_APPROVAL_RATE", dtype=Float32),
         Field(name="POS_MONTHS_BALANCE_MEAN", dtype=Float32),
         Field(name="POS_SK_DPD_MAX", dtype=Float32),
         Field(name="POS_SK_DPD_DEF_MAX", dtype=Float32),
         Field(name="POS_COMPLETED_COUNT", dtype=Float32),
         Field(name="CC_AMT_BALANCE_MEAN", dtype=Float32),
         Field(name="CC_AMT_BALANCE_MAX", dtype=Float32),
-        Field(name="CC_AMT_DRAWINGS_CURRENT_SUM", dtype=Float32),
-        Field(name="CC_CNT_DRAWINGS_CURRENT_SUM", dtype=Float32),
-        Field(name="CC_AMT_PAYMENT_TOTAL_CURRENT_SUM", dtype=Float32),
-        Field(name="INSTAL_AMT_PAYMENT_SUM", dtype=Float32),
-        Field(name="INSTAL_AMT_PAYMENT_MEAN", dtype=Float32),
-        Field(name="INSTAL_DAYS_ENTRY_PAYMENT_MEAN", dtype=Float32),
-        Field(name="INSTAL_PAYMENT_DIFF_MEAN", dtype=Float32),
-        Field(name="INSTAL_PAYMENT_DIFF_SUM", dtype=Float32),
+        Field(name="CC_AMT_DRAWINGS_CURRENT_MEAN", dtype=Float32),
+        Field(name="CC_AMT_PAYMENT_CURRENT_MEAN", dtype=Float32),
+        Field(name="INST_AMT_PAYMENT_MEAN", dtype=Float32),
+        Field(name="INST_AMT_INSTALMENT_MEAN", dtype=Float32),
+        Field(name="INST_PAYMENT_DIFF_MEAN", dtype=Float32),
+        Field(name="INST_PAYMENT_DIFF_SUM", dtype=Float32),
+    ],
+    source=train_source,
+    online=True,
+)
+
+# 4. Missing value indicator features (top-6 by missingness relevance from NB03)
+missing_indicator_features = FeatureView(
+    name="missing_indicator_features",
+    entities=[applicant],
+    ttl=timedelta(days=3650),
+    schema=[
+        Field(name="EXT_SOURCE_1_IS_MISSING", dtype=Int32),
+        Field(name="EXT_SOURCE_3_IS_MISSING", dtype=Int32),
+        Field(name="OWN_CAR_AGE_IS_MISSING", dtype=Int32),
+        Field(name="OCCUPATION_TYPE_IS_MISSING", dtype=Int32),
+        Field(name="BUREAU_CREDIT_COUNT_IS_MISSING", dtype=Int32),
+        Field(name="PREV_APPLICATION_COUNT_IS_MISSING", dtype=Int32),
     ],
     source=train_source,
     online=True,
