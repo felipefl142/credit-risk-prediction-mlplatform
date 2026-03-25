@@ -8,7 +8,7 @@ engineered features from the gold layer.
 from datetime import timedelta
 
 from feast import Entity, FeatureView, FileSource, Field
-from feast.types import Float32, Int32, Int64
+from feast.types import Float32, Int64
 
 # ---------------------------------------------------------------------------
 # Entity
@@ -107,19 +107,3 @@ credit_history_features = FeatureView(
     online=True,
 )
 
-# 4. Missing value indicator features (top-6 by missingness relevance from NB03)
-missing_indicator_features = FeatureView(
-    name="missing_indicator_features",
-    entities=[applicant],
-    ttl=timedelta(days=3650),
-    schema=[
-        Field(name="EXT_SOURCE_1_IS_MISSING", dtype=Int32),
-        Field(name="EXT_SOURCE_3_IS_MISSING", dtype=Int32),
-        Field(name="OWN_CAR_AGE_IS_MISSING", dtype=Int32),
-        Field(name="OCCUPATION_TYPE_IS_MISSING", dtype=Int32),
-        Field(name="BUREAU_CREDIT_COUNT_IS_MISSING", dtype=Int32),
-        Field(name="PREV_APPLICATION_COUNT_IS_MISSING", dtype=Int32),
-    ],
-    source=train_source,
-    online=True,
-)
