@@ -12,7 +12,7 @@ import json
 import pickle
 from pathlib import Path
 
-import lightgbm as lgb
+import xgboost as xgb
 import numpy as np
 import pandas as pd
 import plotly.express as px
@@ -42,11 +42,13 @@ st.set_page_config(
 
 @st.cache_resource
 def load_model():
-    """Load the LightGBM model from disk."""
-    model_path = MODELS_DIR / "best_lgbm.txt"
+    """Load the XGBoost model from disk."""
+    model_path = MODELS_DIR / "best_xgb.json"
     if not model_path.exists():
         return None
-    return lgb.Booster(model_file=str(model_path))
+    booster = xgb.Booster()
+    booster.load_model(str(model_path))
+    return booster
 
 
 @st.cache_resource
@@ -141,7 +143,7 @@ def make_prediction(row: dict, model, preprocessor, feature_cols, cat_cols):
         df[cat_present] = df[cat_present].fillna("missing")
         df[cat_present] = preprocessor.transform(df[cat_present])
 
-    probability = float(model.predict(df)[0])
+    probability = float(model.predict(xgb.DMatrix(df.astype(float)))[0])
     return probability
 
 
@@ -190,10 +192,9 @@ if page == "Model Overview":
     # --- Feature importance ---
     st.subheader("Feature Importance (Top 25)")
     if model is not None:
-        importance = model.feature_importance(importance_type="gain")
-        feature_names = model.feature_name()
+        scores = model.get_score(importance_type="gain")
         imp_df = (
-            pd.DataFrame({"feature": feature_names, "importance": importance})
+            pd.DataFrame(list(scores.items()), columns=["feature", "importance"])
             .sort_values("importance", ascending=False)
             .head(25)
         )
@@ -203,13 +204,13 @@ if page == "Model Overview":
             x="importance",
             y="feature",
             orientation="h",
-            title="LightGBM Feature Importance (gain)",
+            title="XGBoost Feature Importance (gain)",
             labels={"importance": "Importance (gain)", "feature": "Feature"},
         )
         fig.update_layout(height=600, yaxis=dict(dtick=1))
         st.plotly_chart(fig, use_container_width=True)
     else:
-        st.warning("Model not found. Please ensure `models/best_lgbm.txt` exists.")
+        st.warning("Model not found. Please ensure `models/best_xgb.json` exists.")
 
 # ---------------------------------------------------------------------------
 # PAGE: Make Prediction
@@ -224,7 +225,7 @@ elif page == "Make Prediction":
     cat_cols = load_categorical_columns()
 
     if model is None:
-        st.error("Model not loaded. Ensure `models/best_lgbm.txt` exists.")
+        st.error("Model not loaded. Ensure `models/best_xgb.json` exists.")
         st.stop()
 
     with st.form("prediction_form"):

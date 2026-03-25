@@ -5,7 +5,7 @@ Usage:
     uvicorn serving.api:app --reload
 
 Expects model artifacts in the `models/` directory:
-    - best_lgbm.txt          (LightGBM model)
+    - best_xgb.json          (XGBoost model)
     - preprocessor.pkl        (fitted OrdinalEncoder)
     - feature_columns.json    (ordered feature column list)
     - categorical_columns.json (categorical column names)
@@ -17,7 +17,7 @@ from typing import Optional
 import json
 import pickle
 
-import lightgbm as lgb
+import xgboost as xgb
 import numpy as np
 import pandas as pd
 from fastapi import FastAPI, HTTPException
@@ -172,11 +172,13 @@ def _derive_features(row: dict) -> dict:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Load LightGBM model
-    model_path = MODELS_DIR / "best_lgbm.txt"
+    # Load XGBoost model
+    model_path = MODELS_DIR / "best_xgb.json"
     if not model_path.exists():
         raise FileNotFoundError(f"Model file not found: {model_path}")
-    _state["model"] = lgb.Booster(model_file=str(model_path))
+    booster = xgb.Booster()
+    booster.load_model(str(model_path))
+    _state["model"] = booster
 
     # Load preprocessor (OrdinalEncoder)
     preprocessor_path = MODELS_DIR / "preprocessor.pkl"
@@ -226,7 +228,7 @@ def health():
 def model_info():
     """Return model metadata."""
     return ModelInfoResponse(
-        model_type="LightGBM",
+        model_type="XGBoost",
         n_features=len(_state["feature_columns"]),
         feature_columns=_state["feature_columns"],
         categorical_columns=_state["categorical_columns"],
@@ -265,7 +267,7 @@ def predict(application: LoanApplication):
 
         # Predict
         model = _state["model"]
-        probability = float(model.predict(df)[0])
+        probability = float(model.predict(xgb.DMatrix(df.astype(float)))[0])
         prediction = int(probability >= 0.5)
         risk_level = _classify_risk(probability)
 
