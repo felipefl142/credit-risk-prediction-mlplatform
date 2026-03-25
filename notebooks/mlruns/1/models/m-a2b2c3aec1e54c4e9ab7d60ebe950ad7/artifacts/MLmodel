@@ -1,0 +1,22 @@
+artifact_path: /home/felipefrl/Documents/Coding/JupyterNotebooks/credit-risk-mlplatform/notebooks/mlruns/1/models/m-a2b2c3aec1e54c4e9ab7d60ebe950ad7/artifacts
+flavors:
+  python_function:
+    data: model.ubj
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.xgboost
+    python_version: 3.14.3
+  xgboost:
+    code: null
+    data: model.ubj
+    model_class: xgboost.sklearn.XGBClassifier
+    model_format: ubj
+    xgb_version: 3.2.0
+mlflow_version: 3.10.1
+model_id: m-a2b2c3aec1e54c4e9ab7d60ebe950ad7
+model_size_bytes: 3076002
+model_uuid: m-a2b2c3aec1e54c4e9ab7d60ebe950ad7
+prompts: null
+run_id: 0a0287ce6c3244f8bed311f5e69e1e67
+utc_time_created: '2026-03-25 02:47:47.357571'
